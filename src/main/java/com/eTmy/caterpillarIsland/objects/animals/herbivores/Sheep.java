@@ -6,4 +6,9 @@ public class Sheep extends HerbivoreAnimal {
     public Sheep(int positionX, int positionY) {
         super(positionX, positionY);
     }
+
+    @Override
+    public String toString() {
+        return "\uD83D\uDC11";
+    }
 }

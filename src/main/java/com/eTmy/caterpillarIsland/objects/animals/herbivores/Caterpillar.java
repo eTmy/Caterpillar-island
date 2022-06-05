@@ -6,4 +6,9 @@ public class Caterpillar extends HerbivoreAnimal {
     public Caterpillar(int positionX, int positionY) {
         super(positionX, positionY);
     }
+
+    @Override
+    public String toString() {
+        return "\uD83D\uDC1B";
+    }
 }

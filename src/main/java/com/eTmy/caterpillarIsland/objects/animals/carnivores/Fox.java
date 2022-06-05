@@ -6,4 +6,9 @@ public class Fox extends CarnivoreAnimal {
     public Fox(int positionX, int positionY) {
         super(positionX, positionY);
     }
+
+    @Override
+    public String toString() {
+        return "\uD83E\uDD8A";
+    }
 }

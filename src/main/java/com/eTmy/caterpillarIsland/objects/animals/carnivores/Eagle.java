@@ -6,4 +6,9 @@ public class Eagle extends CarnivoreAnimal {
     public Eagle(int positionX, int positionY) {
         super(positionX, positionY);
     }
+
+    @Override
+    public String toString() {
+        return "\uD83E\uDD85";
+    }
 }
