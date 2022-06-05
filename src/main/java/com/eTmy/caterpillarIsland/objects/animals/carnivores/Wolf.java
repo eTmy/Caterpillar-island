@@ -1,7 +1,9 @@
 package main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores;
 
+import main.java.com.eTmy.caterpillarIsland.annotations.animals.ObjectBasicProperties;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.CarnivoreAnimal;
 
+@ObjectBasicProperties(maxCount = 30, printName = "Волк")
 public class Wolf extends CarnivoreAnimal {
     public Wolf(int positionX, int positionY) {
         super(positionX, positionY);

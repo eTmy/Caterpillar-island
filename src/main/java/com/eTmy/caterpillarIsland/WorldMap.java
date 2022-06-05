@@ -1,17 +1,12 @@
 package main.java.com.eTmy.caterpillarIsland;
 
-import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
+import main.java.com.eTmy.caterpillarIsland.annotations.animals.ObjectBasicProperties;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores.Bear;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores.Boa;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores.Wolf;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Buffalo;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Caterpillar;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Duck;
-import main.java.com.eTmy.caterpillarIsland.objects.plants.Corn;
-import main.java.com.eTmy.caterpillarIsland.objects.plants.Wheat;
-import org.jetbrains.annotations.NotNull;
+import main.java.com.eTmy.caterpillarIsland.services.GameInitializer;
+//import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,67 +17,56 @@ public final class WorldMap {
     public static int MAP_WIDTH = 5;
     public static int MAP_HEIGHT = 5;
 
-    private static ArrayList<ArrayList<ArrayList<ItemObject>>> worldMap = new ArrayList<ArrayList<ArrayList<ItemObject>>>(MAP_WIDTH);
+    private static ArrayList<ArrayList<ArrayList<ItemObject>>> textGraphicWorldMap = new ArrayList<>(MAP_WIDTH);
     private static final Map<String, ArrayList<ItemObject>> objectsCoordinates = new HashMap<>();
 
     public WorldMap() {
     }
 
     public static void generateWorldMap() {
-        for(int x = 0; x < MAP_WIDTH; x++) {
-            worldMap.add(x, new ArrayList<ArrayList<ItemObject>>(MAP_HEIGHT));
-            for(int y = 0; y < MAP_HEIGHT; y++) {
-                worldMap.get(x).add(y, new ArrayList<ItemObject>());
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            textGraphicWorldMap.add(x, new ArrayList<>(MAP_HEIGHT));
+            for (int y = 0; y < MAP_HEIGHT; y++) {
+                textGraphicWorldMap.get(x).add(y, new ArrayList<>());
             }
         }
     }
 
-    public static void printWorldMap(){
-        worldMap.forEach(arrayLists -> {
+    public static void printWorldMap() {
+        textGraphicWorldMap.forEach(arrayLists -> {
             arrayLists.forEach(itemObjects -> {
                 if (itemObjects.size() > 0) {
-                    System.out.print(" ["+itemObjects.get(0).toString()+"]");
-                }
-                else System.out.print(" [ ]");
+                    System.out.print(" [" + itemObjects.get(0).toString() + "]");
+                } else System.out.print(" [ ]");
             });
-            System.out.println("");
+            System.out.println();
         });
     }
 
-    public static void generateObjects(){
+    public static void generateObjects() {
         //generate from settings
-
-        addObjectCoordinate(new Wheat(0,0));
-        addObjectCoordinate(new Buffalo(0,4));
-
-        addObjectCoordinate(new Caterpillar(1,3));
-        addObjectCoordinate(new Bear(1,1));
-        addObjectCoordinate(new Wheat(1,2));
-
-        addObjectCoordinate(new Duck(2,1));
-        addObjectCoordinate(new Corn(2,2));
-
-        addObjectCoordinate(new Caterpillar(3,4));
-
-        addObjectCoordinate(new Wolf(4,2));
-        addObjectCoordinate(new Boa(4,2));
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            for (int y = 0; y < MAP_HEIGHT; y++) {
+                generateFieldObjects(x, y);
+            }
+        }
 
     }
 
-    public static void fillWorldMap(){
-        objectsCoordinates.forEach((key, value) -> value.forEach(animal ->
-                worldMap.get(animal.getPositionX()).get(animal.getPositionY()).add(animal)));
+    public static void fillWorldMap() {
+        objectsCoordinates.forEach((key, value) -> value.forEach(itemObject ->
+                textGraphicWorldMap.get(itemObject.getPositionX()).get(itemObject.getPositionY()).add(itemObject)));
     }
 
-    public static ArrayList<ArrayList<ArrayList<ItemObject>>> getWorldMap() {
-        return worldMap;
+    public static ArrayList<ArrayList<ArrayList<ItemObject>>> getTextGraphicWorldMap() {
+        return textGraphicWorldMap;
     }
 
     public static Map<String, ArrayList<ItemObject>> getObjectsCoordinates() {
         return objectsCoordinates;
     }
 
-    public static void addObjectCoordinate(@NotNull ItemObject itemObject){
+    public static void addObjectCoordinate(ItemObject itemObject) {
         ArrayList<ItemObject> mapValue = objectsCoordinates.get(itemObject.getPositionKey());
         if (mapValue == null)
             objectsCoordinates.put(itemObject.getPositionKey(), new ArrayList(Arrays.asList(itemObject)));
@@ -94,6 +78,23 @@ public final class WorldMap {
         }
     }
 
-
+    static void generateFieldObjects(int positionX, int positionY) {
+        GameInitializer.initializedClasses.forEach(aClass -> {
+            ObjectBasicProperties annotation = aClass.getAnnotation(ObjectBasicProperties.class);
+            int randomMaxCount = (int) (Math.random() * annotation.maxCount());
+            for (int i = 0; i < randomMaxCount; i++) {
+                try {
+                    Constructor<?> constructor = aClass.getConstructor(int.class, int.class);
+                    constructor.setAccessible(true);
+                    ItemObject newItemObject = (ItemObject) constructor.newInstance(positionX, positionY);
+                    addObjectCoordinate(newItemObject);
+                } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println("Координаты X"+ positionX+"Y"+positionY+" создано " + randomMaxCount + " экземпляров класса " + annotation.printName());
+        });
+    }
 }
 
