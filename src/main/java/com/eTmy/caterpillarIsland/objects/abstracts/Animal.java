@@ -1,9 +1,13 @@
 package main.java.com.eTmy.caterpillarIsland.objects.abstracts;
 
+import java.util.Map;
+
 public abstract class Animal extends ItemObject {
     long weight;
     long speed;
     long kgSatisfyHunger;
+
+
     protected Animal(int positionX, int positionY) {
         super(positionX, positionY);
     }

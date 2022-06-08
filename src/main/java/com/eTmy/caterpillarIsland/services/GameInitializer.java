@@ -1,6 +1,9 @@
 package main.java.com.eTmy.caterpillarIsland.services;
 
+import main.java.com.eTmy.caterpillarIsland.Survival;
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
+import main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores.Wolf;
+import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Boar;
 
 import java.util.List;
 
@@ -11,13 +14,12 @@ public class GameInitializer {
         //Получить настройки
         initializeClasses();
         GameObjects.generateGameFields();
-
         System.out.println("Инициализация обьектов завершенна");
 
-        //WorldMap.generateWorldMap();
-        //WorldMap.fillWorldMap();
-        //WorldMap.printWorldMap();
-        //Делать ходы пока возможно
+        System.out.println("Вероятности сьесть животное: ");
+        Survival.getInstance().getSurvivalList().forEach(System.out::println);
+
+        System.out.println(Survival.getInstance().getEatChance(Wolf.class.getSimpleName(), "sda"));
     }
 
     public static void initializeClasses() {
@@ -25,5 +27,7 @@ public class GameInitializer {
         usedGameObjectClasses.addAll(ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores"));
         usedGameObjectClasses.addAll(ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.plants"));
     }
+
+
 
 }
