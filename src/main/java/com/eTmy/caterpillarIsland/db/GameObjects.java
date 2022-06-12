@@ -1,19 +1,20 @@
 package main.java.com.eTmy.caterpillarIsland.db;
 
+import main.java.com.eTmy.caterpillarIsland.Survival;
 import main.java.com.eTmy.caterpillarIsland.WorldMap;
 import main.java.com.eTmy.caterpillarIsland.annotations.animals.ObjectBasicProperties;
+import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
 import main.java.com.eTmy.caterpillarIsland.services.GameInitializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameObjects {
-    private static final Map<String, ArrayList<ItemObject>> createdObjects = new HashMap<>();
+    private static final Map<String, ArrayList<ItemObject>> createdObjects = new ConcurrentHashMap<>();//HashMap<>();
 
     public static Map<String, ArrayList<ItemObject>> getGameObjects() {
         return createdObjects;
@@ -59,5 +60,30 @@ public class GameObjects {
             mapValue.add(itemObject);
             createdObjects.put(itemObject.getPositionKey(), mapValue);
         }
+    }
+
+    public static ArrayList<ItemObject> getObjectsOnField(String positionKey) {
+        return createdObjects.get(positionKey);
+    }
+
+    public static List<ItemObject> getEatableObjectsOnField(Animal animal) {
+        List<String> eatableObjects = Survival.getInstance().getEatableObjects(animal.getClass().getSimpleName());
+        List<ItemObject> objectsOnField = getObjectsOnField(animal.getPositionKey());
+
+        if (eatableObjects == null) {
+            return null;
+        }
+
+        objectsOnField.removeIf(itemObject -> !eatableObjects.contains(itemObject.getClass().getSimpleName()));
+
+        return objectsOnField;
+    }
+
+    public static ItemObject getRandomEatableObjectOnField(Animal animal) {
+        List<ItemObject> eatableObjectsOnField = getEatableObjectsOnField(animal);
+
+        Random random = new Random();
+
+        return eatableObjectsOnField.get(random.nextInt(eatableObjectsOnField.size()));
     }
 }

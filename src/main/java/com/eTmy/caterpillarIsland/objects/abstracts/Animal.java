@@ -6,6 +6,7 @@ public abstract class Animal extends ItemObject {
     long weight;
     long speed;
     long kgSatisfyHunger;
+    boolean dailyActivityCompleted;
 
 
     protected Animal(int positionX, int positionY) {

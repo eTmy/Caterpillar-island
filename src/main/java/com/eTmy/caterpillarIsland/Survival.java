@@ -6,12 +6,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Survival {
     private static Survival instance;
+
+    @JsonProperty("survival")
+    private List<HashMap<String, HashMap<String, Double>>> survivalList;
 
     private Survival() {
 
@@ -29,18 +30,30 @@ public class Survival {
         return survivalList;
     }
 
-    @JsonProperty("survival")
-    private List<HashMap<String, HashMap<String, Double>>> survivalList;
-
     public Double getEatChance(String attackingClassName, String defensiveClassName) {
-        Optional<HashMap<String, HashMap<String, Double>>> eatableAnimals = survivalList.stream()
-                .filter(stringMapMap -> stringMapMap.containsKey(attackingClassName)).findAny();
-
-        return eatableAnimals.map(stringHashMapHashMap -> stringHashMapHashMap
-                .get(attackingClassName)
-                .get(defensiveClassName))
+        HashMap<String, HashMap<String, Double>> eatableObjects = survivalList.stream().filter(stringHashMapHashMap -> stringHashMapHashMap.containsKey(attackingClassName))
+                .findAny()
                 .orElse(null);
 
+        if (eatableObjects == null) {
+            return 0.0;
+        }
+
+        Double chance = eatableObjects.get(attackingClassName).get(defensiveClassName);
+        return (chance == null) ? 0.0 : chance;
+    }
+
+    public ArrayList<String> getEatableObjects(String className) {
+        HashMap<String, HashMap<String, Double>> eatableObjects = survivalList.stream()
+                .filter(stringMapMap -> stringMapMap.containsKey(className))
+                .findAny()
+                .orElse(null);
+
+        if (eatableObjects == null) {
+            return null;
+        }
+
+        return new ArrayList<>(eatableObjects.get(className).keySet());
     }
 
     private static void initializeSurvivalList() {

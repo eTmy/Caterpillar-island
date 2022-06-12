@@ -5,6 +5,8 @@ public abstract class ItemObject {
     private int positionY;
     private String positionKey;
 
+    private int HP;
+
     protected ItemObject(int positionX, int positionY) {
         setPosition(positionX, positionY);
     }
