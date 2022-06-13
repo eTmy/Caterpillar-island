@@ -7,6 +7,7 @@ import main.java.com.eTmy.caterpillarIsland.objects.abstracts.CarnivoreAnimal;
 public class Fox extends CarnivoreAnimal {
     public Fox(int positionX, int positionY) {
         super(positionX, positionY);
+        setSpeed(2);
     }
 
     @Override

@@ -7,6 +7,7 @@ import main.java.com.eTmy.caterpillarIsland.objects.abstracts.HerbivoreAnimal;
 public class Duck extends HerbivoreAnimal {
     public Duck(int positionX, int positionY) {
         super(positionX, positionY);
+        setSpeed(4);
     }
 
     @Override

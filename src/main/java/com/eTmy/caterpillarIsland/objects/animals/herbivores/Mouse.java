@@ -7,6 +7,7 @@ import main.java.com.eTmy.caterpillarIsland.objects.abstracts.HerbivoreAnimal;
 public class Mouse extends HerbivoreAnimal {
     public Mouse(int positionX, int positionY) {
         super(positionX, positionY);
+        setSpeed(1);
     }
 
     @Override
