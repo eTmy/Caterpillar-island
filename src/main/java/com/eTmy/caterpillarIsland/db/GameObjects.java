@@ -86,4 +86,12 @@ public class GameObjects {
 
         return eatableObjectsOnField.get(random.nextInt(eatableObjectsOnField.size()));
     }
+
+    public static boolean canCreateObjectOnField(String positionKey, Class<?> aClass) {
+        ObjectBasicProperties annotation = aClass.getAnnotation(ObjectBasicProperties.class);
+        long countCreatedObjects = getObjectsOnField(positionKey).stream()
+                .filter(itemObject -> itemObject.getClass().getSimpleName().equals(aClass.getSimpleName()))
+                .count();
+        return countCreatedObjects < annotation.maxCount();
+    }
 }

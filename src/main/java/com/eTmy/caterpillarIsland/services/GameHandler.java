@@ -1,6 +1,7 @@
 package main.java.com.eTmy.caterpillarIsland.services;
 
 import main.java.com.eTmy.caterpillarIsland.Survival;
+import main.java.com.eTmy.caterpillarIsland.WorldMap;
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
@@ -9,33 +10,77 @@ import java.util.*;
 
 public class GameHandler {
     public static void makeDailyActivity(Animal animal) {
-        //calculateStats(animal)
-        hunts(animal);
-        animal.setDailyActivityCompleted();
+        calculateAnimalDailyStats(animal);
 
-        //replace with log statistic
-        System.out.println(animal.toString() + " has finished daily activity");
+        if (animal.isDead()) {
+            return;
+        }
+
+        hunt(animal);
+
+        animal.setDailyActivityCompleted(true);
     }
 
-    private static void hunts(Animal animal) {
+    public static void calculateAnimalDailyStats(Animal animal) {
+        animal.calculateDailySatiety();
+
+        if (animal.getCurrentSatiety() <= 0) {
+            animal.setHP(animal.getHP() - 25);
+            System.out.println(animal+ " reduced by 15 health points");
+        }
+
+        if (animal.getHP() <= 0) {
+            animal.setDead(true);
+            System.out.println(animal+ " starved to death");
+        }
+    }
+
+    private static void hunt(Animal animal) {
         if (canEatOnCurrentField(animal)) {
             ItemObject defensiveObject = GameObjects.getRandomEatableObjectOnField(animal);
             boolean huntResult = tryEatObject(animal, defensiveObject);
             if (huntResult) {
-                //calculateStats attacking and defensive objects
+                animal.eat(defensiveObject.getWeight());
+                defensiveObject.setDead(true);
             }
             //replace with log statistic
-            System.out.println(animal.toString() + " attacking -> " + defensiveObject.toString() + " | result " + huntResult);
+            System.out.println(animal+ " attacking -> " + defensiveObject + " | result " + huntResult);
             return;
         }
 
         if (animal.getSpeed() > 0) {
-            System.out.print(animal.toString() + " move from " + animal.getPositionKey() + " ");
-            animal.move();
+            System.out.print(animal + " moves from " + animal.getPositionKey() + " ");
+
+            int tryMoveCount = 3;
+
+            while (tryMoveCount != 0) {
+                String newPositionKey = getNewPositionKey(animal);
+                if (!newPositionKey.equals(animal.getPositionKey())) {
+                    animal.setPosition(newPositionKey);
+                    break;
+                }
+                tryMoveCount--;
+            }
+
             //replace with log statistic
             System.out.println("to " + animal.getPositionKey() + " max speed " + animal.getSpeed());
         }
 
+    }
+
+
+    public static String getNewPositionKey(ItemObject itemObject) {
+        int posX = itemObject.getPositionX();
+        int posY = itemObject.getPositionY();
+
+        int movesCount = itemObject.getSpeed();
+        posX = getRandomCoordinatePosition(posX, movesCount, 0, WorldMap.MAP_WIDTH);
+        movesCount -= Math.abs(itemObject.getPositionX() - posX);
+        if (movesCount > 0) {
+            posY = getRandomCoordinatePosition(posY, movesCount, 0, WorldMap.MAP_HEIGHT);
+        }
+
+        return "x" + posX + "y" + posY;
     }
 
     public static int getRandomCoordinatePosition(int currentPosition, int movesCount, int minLimit, int maxLimit) {

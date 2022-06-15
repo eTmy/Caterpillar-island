@@ -12,17 +12,17 @@ public class GameInitializer {
 
     public static void main(String[] args) {
         //сделать настройки
-        initializeClasses();
+        initClasses();
+        GameObjects.generateGameFields();
+        System.out.println("Objects generation is done");
+
         test();
     }
 
     public static void test(){
         List<ItemObject> listAnimals = new ArrayList<>();
 
-        GameObjects.generateGameFields();
-        System.out.println("Инициализация обьектов завершенна");
-
-        System.out.println("Вероятности сьесть животное: ");
+        System.out.println("Survival chance: ");
         Survival.getInstance().getSurvivalList().forEach(System.out::println);
 
         GameObjects.getGameObjects().forEach((k, v) -> v.forEach(itemObject -> {
@@ -32,13 +32,20 @@ public class GameInitializer {
         }));
 
         //добавить цикл роста растений
-        listAnimals.forEach(itemObject -> GameHandler.makeDailyActivity((Animal) itemObject));
+        listAnimals.forEach(itemObject -> {
+            Animal animal = (Animal) itemObject;
+            if (animal.isDead()) {
+                System.out.println(animal + " doesn't make daily activity because it's dead!");
+                return;
+            }
+            GameHandler.makeDailyActivity(animal);
+        });
 
         //на конец хода:
         //      вычищать createdObjects от трупов
         //      изменять координаты объектов в createdObjects, если они изменились
     }
-    public static void initializeClasses() {
+    public static void initClasses() {
         usedGameObjectClasses = ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores");
         usedGameObjectClasses.addAll(ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores"));
         usedGameObjectClasses.addAll(ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.plants"));

@@ -1,54 +1,44 @@
 package main.java.com.eTmy.caterpillarIsland.objects.abstracts;
 
 import main.java.com.eTmy.caterpillarIsland.WorldMap;
+import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
 import main.java.com.eTmy.caterpillarIsland.services.GameHandler;
 
 public abstract class Animal extends ItemObject {
-    private long weight;
-    private int speed = 0;
-    private long kgSatisfyHunger;
-    private boolean dailyActivityCompleted;
+    private long maxSatiety = 10;
+    private long currentSatiety;
 
     protected Animal(int positionX, int positionY) {
         super(positionX, positionY);
+        this.currentSatiety = maxSatiety;
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
+    public void eat(long weight) {
+        currentSatiety += Math.min(weight, maxSatiety);
     }
 
-    public int getSpeed() {
-        return speed;
+    public void setMaxSatiety(long maxSatiety) {
+        this.maxSatiety = maxSatiety;
     }
 
-    public boolean isDailyActivityCompleted() {
-        return dailyActivityCompleted;
+    public long getMaxSatiety() {
+        return maxSatiety;
     }
 
-    public void setDailyActivityCompleted() {
-        this.dailyActivityCompleted = true;
+    public void calculateDailySatiety() {
+        currentSatiety -= maxSatiety / 3;
     }
 
-    public void eat() {
+    public long getCurrentSatiety() {
+        return currentSatiety;
     }
 
-    public void move() {
-        int posX = getPositionX();
-        int posY = getPositionY();
-
-        while (getPositionX() == posX && getPositionY() == posY) {
-            int movesCount = getSpeed();
-            posX = GameHandler.getRandomCoordinatePosition(posX, movesCount, 0, WorldMap.MAP_WIDTH);
-            movesCount -= Math.abs(getPositionX() - posX);
-            if (movesCount > 0) {
-                posY = GameHandler.getRandomCoordinatePosition(posY, movesCount, 0, WorldMap.MAP_HEIGHT);
-            }
-        }
-
-        setPosition(posX, posY);
+    public void setCurrentSatiety(long currentSatiety) {
+        this.currentSatiety = currentSatiety;
     }
 
-    public void reproduce() {
+    public void reproduce(Animal animal) {
+        GameObjects.createItemObject(animal.getClass(), getPositionX(), getPositionY());
     }
 
 
