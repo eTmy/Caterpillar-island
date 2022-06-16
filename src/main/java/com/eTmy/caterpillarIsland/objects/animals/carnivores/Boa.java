@@ -8,6 +8,8 @@ public class Boa extends CarnivoreAnimal {
     public Boa(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(1);
+        setWeight(50);
+        setMaxSatietyPoints(3);
     }
 
     @Override

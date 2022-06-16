@@ -19,7 +19,7 @@ public class GameInitializer {
         test();
     }
 
-    public static void test(){
+    public static void test() {
         List<ItemObject> listAnimals = new ArrayList<>();
 
         System.out.println("Survival chance: ");
@@ -41,10 +41,9 @@ public class GameInitializer {
             GameHandler.makeDailyActivity(animal);
         });
 
-        //на конец хода:
-        //      вычищать createdObjects от трупов
-        //      изменять координаты объектов в createdObjects, если они изменились
+        GameObjects.updateCreatedObjects();
     }
+
     public static void initClasses() {
         usedGameObjectClasses = ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.animals.carnivores");
         usedGameObjectClasses.addAll(ClassFinder.find("main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores"));

@@ -32,13 +32,9 @@ survival:
       Duck: 60
       Caterpillar: 40
   - Boa:
-      Boa: 80
-      Horse: 40
-      Deer: 80
-      Rabbit: 80
-      Mouse: 90
-      Goat: 70
-      Sheep: 70
+      Fox: 15
+      Rabbit: 20
+      Mouse: 40
       Duck: 10
   - Boar:
       Mouse: 50

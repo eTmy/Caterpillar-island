@@ -5,6 +5,7 @@ import main.java.com.eTmy.caterpillarIsland.WorldMap;
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
+import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Caterpillar;
 
 import java.util.*;
 
@@ -16,27 +17,36 @@ public class GameHandler {
             return;
         }
 
-        hunt(animal);
-
+        if (animal.isReproduceReady()
+                && GameObjects.canCreateObjectOnField(animal.getPositionKey(), animal.getClass())
+                && GameObjects.getRandomAnimalForSexOnField(animal.getPositionKey(), animal.getClass().getSimpleName()) != null
+        ) {
+            animal.reproduce();
+            System.out.println(animal + " makes a baby");
+        } else {
+            hunt(animal);
+        }
         animal.setDailyActivityCompleted(true);
     }
 
     public static void calculateAnimalDailyStats(Animal animal) {
         animal.calculateDailySatiety();
+        animal.calculateReproduce();
 
-        if (animal.getCurrentSatiety() <= 0) {
+        if (animal.getCurrentSatietyPoints() <= 0) {
             animal.setHP(animal.getHP() - 25);
-            System.out.println(animal+ " reduced by 15 health points");
+            // System.out.println(animal + " reduced by 15 health points");
         }
 
         if (animal.getHP() <= 0) {
             animal.setDead(true);
-            System.out.println(animal+ " starved to death");
+            System.out.println(animal + " starved to death");
         }
     }
 
     private static void hunt(Animal animal) {
         if (canEatOnCurrentField(animal)) {
+            //охотится на максимально сытый обьект
             ItemObject defensiveObject = GameObjects.getRandomEatableObjectOnField(animal);
             boolean huntResult = tryEatObject(animal, defensiveObject);
             if (huntResult) {
@@ -44,7 +54,11 @@ public class GameHandler {
                 defensiveObject.setDead(true);
             }
             //replace with log statistic
-            System.out.println(animal+ " attacking -> " + defensiveObject + " | result " + huntResult);
+            if (!(animal instanceof Caterpillar)) {
+                System.out.println(animal + " attacking -> " + defensiveObject + " | result " + huntResult
+                        + " | Satiety: max " + String.format("%.2f", animal.getMaxSatietyPoints())
+                        + "  current " + String.format("%.2f", animal.getCurrentSatietyPoints()));
+            }
             return;
         }
 
@@ -56,7 +70,7 @@ public class GameHandler {
             while (tryMoveCount != 0) {
                 String newPositionKey = getNewPositionKey(animal);
                 if (!newPositionKey.equals(animal.getPositionKey())) {
-                    animal.setPosition(newPositionKey);
+                    animal.move(newPositionKey);
                     break;
                 }
                 tryMoveCount--;
@@ -67,7 +81,6 @@ public class GameHandler {
         }
 
     }
-
 
     public static String getNewPositionKey(ItemObject itemObject) {
         int posX = itemObject.getPositionX();

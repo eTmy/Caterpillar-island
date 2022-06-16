@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameObjects {
-    private static final Map<String, ArrayList<ItemObject>> createdObjects = new ConcurrentHashMap<>();//HashMap<>();
+    private static Map<String, ArrayList<ItemObject>> createdObjects = new ConcurrentHashMap<>();//HashMap<>();
 
     public static Map<String, ArrayList<ItemObject>> getGameObjects() {
         return createdObjects;
@@ -37,6 +37,45 @@ public class GameObjects {
             createItemObject(aClass, positionX, positionY);
         }
         System.out.println("Координаты X" + positionX + "Y" + positionY + " создано " + randomMaxCount + " экземпляров класса " + annotation.printName());
+    }
+
+    private static void removeObject(ItemObject itemObject) {
+        createdObjects.get(itemObject.getPositionKey()).remove(itemObject);
+    }
+
+    public static void updateCreatedObjects() {
+        List<ItemObject> allCreatedObjects = getListAllCreatedObjects();
+        allCreatedObjects.forEach(itemObject -> {
+            if (itemObject.isDead()) {
+                removeObject(itemObject);
+                //System.out.println(itemObject + " deleted from " + itemObject.getPositionKey());
+            }
+        });
+//Разрулить Concurrent ex при удалении из мапы
+//        GameObjects.getGameObjects().forEach((k, v) -> v.forEach(itemObject -> {
+//            if (itemObject.isDead()) {
+//                removeObject(itemObject);
+//                System.out.println(itemObject + " deleted from " + k);
+//            }
+//
+//            if(!itemObject.getPositionKey().equals(k)) {
+//                v.remove(itemObject);
+//                addToCreatedObjects(itemObject);
+//                System.out.println(itemObject + " moves from " + k + " to " + itemObject.getPositionKey());
+//            }
+//        }));
+
+
+    }
+
+    public static List<ItemObject> getListAllCreatedObjects() {
+        List<ItemObject> listAnimals = new ArrayList<>();
+        GameObjects.getGameObjects().forEach((k, v) -> v.forEach(itemObject -> {
+            if (itemObject instanceof Animal) {
+                listAnimals.add(itemObject);
+            }
+        }));
+        return listAnimals;
     }
 
     public static void createItemObject(@NotNull Class<?> aClass, int positionX, int positionY) {
@@ -63,7 +102,16 @@ public class GameObjects {
     }
 
     public static ArrayList<ItemObject> getObjectsOnField(String positionKey) {
-        return createdObjects.get(positionKey);
+        return new ArrayList<>(createdObjects.get(positionKey));
+    }
+
+    public static ItemObject getRandomAnimalForSexOnField(String positionKey, String aClass) {
+        return createdObjects.get(positionKey).stream()
+                .filter(animal -> animal.getClass().getSimpleName().equals(aClass))
+                .map(itemObject -> (Animal) itemObject)
+                .filter(animal -> !animal.isDead() && animal.isReproduceReady())
+                .findAny()
+                .orElse(null);
     }
 
     public static List<ItemObject> getEatableObjectsOnField(Animal animal) {

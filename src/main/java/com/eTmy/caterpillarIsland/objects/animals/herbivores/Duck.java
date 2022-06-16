@@ -8,6 +8,8 @@ public class Duck extends HerbivoreAnimal {
     public Duck(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(4);
+        setWeight(1);
+        setMaxSatietyPoints(0.15);
     }
 
     @Override

@@ -8,6 +8,8 @@ public class Fox extends CarnivoreAnimal {
     public Fox(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(2);
+        setWeight(8);
+        setMaxSatietyPoints(2);
     }
 
     @Override

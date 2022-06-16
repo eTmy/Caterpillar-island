@@ -8,6 +8,8 @@ public class Buffalo extends HerbivoreAnimal {
     public Buffalo(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(3);
+        setWeight(700);
+        setMaxSatietyPoints(100);
     }
 
     @Override

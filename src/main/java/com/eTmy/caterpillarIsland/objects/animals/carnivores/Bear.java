@@ -8,6 +8,8 @@ public class Bear extends CarnivoreAnimal {
     public Bear(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(2);
+        setWeight(500);
+        setMaxSatietyPoints(80);
     }
 
     @Override

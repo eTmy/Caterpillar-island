@@ -5,7 +5,7 @@ public abstract class ItemObject {
     private int positionY;
     private String positionKey;
     private int HP = 100;
-    private long weight;
+    private double weight;
     private int speed = 0;
     boolean isDead = false;
 
@@ -39,7 +39,11 @@ public abstract class ItemObject {
         return positionKey;
     }
 
-    public long getWeight() {
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public double getWeight() {
         return weight;
     }
 

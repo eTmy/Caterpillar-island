@@ -7,6 +7,7 @@ import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Plant;
 public class Wheat extends Plant {
     public Wheat(int positionX, int positionY) {
         super(positionX, positionY);
+        setWeight(1);
     }
 
     @Override

@@ -8,6 +8,8 @@ public class Deer extends HerbivoreAnimal {
     public Deer(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(4);
+        setWeight(300);
+        setMaxSatietyPoints(50);
     }
 
     @Override

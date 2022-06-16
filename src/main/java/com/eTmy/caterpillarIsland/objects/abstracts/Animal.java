@@ -1,44 +1,51 @@
 package main.java.com.eTmy.caterpillarIsland.objects.abstracts;
 
-import main.java.com.eTmy.caterpillarIsland.WorldMap;
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
-import main.java.com.eTmy.caterpillarIsland.services.GameHandler;
 
 public abstract class Animal extends ItemObject {
-    private long maxSatiety = 10;
-    private long currentSatiety;
+    private double maxSatietyPoints = 0;
+    private double currentSatietyPoints = 0;
+
+    private boolean reproduceReady;
 
     protected Animal(int positionX, int positionY) {
         super(positionX, positionY);
-        this.currentSatiety = maxSatiety;
     }
 
-    public void eat(long weight) {
-        currentSatiety += Math.min(weight, maxSatiety);
+    public void eat(double weight) {
+        currentSatietyPoints += Math.min(weight, maxSatietyPoints);
     }
 
-    public void setMaxSatiety(long maxSatiety) {
-        this.maxSatiety = maxSatiety;
+    public void setMaxSatietyPoints(double maxSatietyPoints) {
+        this.maxSatietyPoints = maxSatietyPoints;
     }
 
-    public long getMaxSatiety() {
-        return maxSatiety;
+    public double getMaxSatietyPoints() {
+        return maxSatietyPoints;
+    }
+
+    public boolean isReproduceReady() {
+        return reproduceReady;
     }
 
     public void calculateDailySatiety() {
-        currentSatiety -= maxSatiety / 3;
+        currentSatietyPoints = ((currentSatietyPoints - (maxSatietyPoints / 4)) < 0) ? 0 : currentSatietyPoints - (maxSatietyPoints / 4);
     }
 
-    public long getCurrentSatiety() {
-        return currentSatiety;
+    public void calculateReproduce() {
+        reproduceReady = getCurrentSatietyPoints() > getMaxSatietyPoints() / 2;
     }
 
-    public void setCurrentSatiety(long currentSatiety) {
-        this.currentSatiety = currentSatiety;
+    public double getCurrentSatietyPoints() {
+        return currentSatietyPoints;
     }
 
-    public void reproduce(Animal animal) {
-        GameObjects.createItemObject(animal.getClass(), getPositionX(), getPositionY());
+    public void setCurrentSatietyPoints(double currentSatietyPoints) {
+        this.currentSatietyPoints = currentSatietyPoints;
+    }
+
+    public void reproduce() {
+        GameObjects.createItemObject(this.getClass(), getPositionX(), getPositionY());
     }
 
 

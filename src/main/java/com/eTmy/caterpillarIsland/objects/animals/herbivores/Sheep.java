@@ -8,6 +8,8 @@ public class Sheep extends HerbivoreAnimal {
     public Sheep(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(3);
+        setWeight(70);
+        setMaxSatietyPoints(15);
     }
 
     @Override

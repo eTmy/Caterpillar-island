@@ -8,6 +8,8 @@ public class Mouse extends HerbivoreAnimal {
     public Mouse(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(1);
+        setWeight(0.05);
+        setMaxSatietyPoints(0.01);
     }
 
     @Override

@@ -8,6 +8,8 @@ public class Wolf extends CarnivoreAnimal {
     public Wolf(int positionX, int positionY) {
         super(positionX, positionY);
         setSpeed(3);
+        setWeight(50);
+        setMaxSatietyPoints(8);
     }
 
     @Override
