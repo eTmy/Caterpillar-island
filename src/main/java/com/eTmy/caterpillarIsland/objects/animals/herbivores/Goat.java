@@ -9,7 +9,7 @@ public class Goat extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(3);
         setWeight(60);
-        setMaxSatietyPoints(10);
+        setMaxHungryPoints(10);
     }
 
     @Override

@@ -9,7 +9,7 @@ public class Wolf extends CarnivoreAnimal {
         super(positionX, positionY);
         setSpeed(3);
         setWeight(50);
-        setMaxSatietyPoints(8);
+        setMaxHungryPoints(8);
     }
 
     @Override

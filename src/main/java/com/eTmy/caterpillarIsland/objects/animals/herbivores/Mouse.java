@@ -9,7 +9,7 @@ public class Mouse extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(1);
         setWeight(0.05);
-        setMaxSatietyPoints(0.01);
+        setMaxHungryPoints(0.01);
     }
 
     @Override

@@ -1,18 +1,22 @@
 package main.java.com.eTmy.caterpillarIsland.objects.abstracts;
 
+import main.java.com.eTmy.caterpillarIsland.services.GameInitializer;
+
 public abstract class ItemObject {
     private int positionX;
     private int positionY;
     private String positionKey;
+    private String movePositionKey;
     private int HP = 100;
     private double weight;
     private int speed = 0;
-    boolean isDead = false;
+    private boolean isDead = false;
 
     private boolean dailyActivityCompleted;
 
     protected ItemObject(int positionX, int positionY) {
         setPosition(positionX, positionY);
+        setMovePositionKey(positionKey);
     }
 
     public int getPositionX() {
@@ -30,13 +34,21 @@ public abstract class ItemObject {
     }
 
     public void setPosition(String positionKey) {
-        this.positionX = positionKey.toCharArray()[1];
-        this.positionY = positionKey.toCharArray()[3];
+        this.positionX = Integer.parseInt(String.valueOf(positionKey.charAt(1)));
+        this.positionY = Integer.parseInt(String.valueOf(positionKey.charAt(3)));
         this.positionKey = positionKey;
     }
 
     public String getPositionKey() {
         return positionKey;
+    }
+
+    public String getMovePositionKey() {
+        return movePositionKey;
+    }
+
+    public void setMovePositionKey(String movePositionKey) {
+        this.movePositionKey = movePositionKey;
     }
 
     public void setWeight(double weight) {
@@ -51,12 +63,8 @@ public abstract class ItemObject {
         return speed;
     }
 
-    public void move(int posX, int posY) {
-        setPosition(posX, posY);
-    }
-
-    public void move(String positionKey) {
-        setPosition(positionKey);
+    public void move() {
+        setPosition(getMovePositionKey());
     }
 
     public void setSpeed(int speed) {
@@ -77,6 +85,11 @@ public abstract class ItemObject {
 
     public void setDead(boolean dead) {
         isDead = dead;
+        GameInitializer.statistic.plusDeath();
+    }
+
+    public boolean hasMoved() {
+        return positionKey.equals(movePositionKey);
     }
 
     public boolean isDailyActivityCompleted() {

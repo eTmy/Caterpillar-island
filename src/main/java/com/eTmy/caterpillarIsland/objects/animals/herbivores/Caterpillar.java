@@ -10,7 +10,7 @@ public class Caterpillar extends HerbivoreAnimal {
     public Caterpillar(int positionX, int positionY) {
         super(positionX, positionY);
         setWeight(0.01);
-        setMaxSatietyPoints(0.01);
+        setMaxHungryPoints(0.01);
     }
 
     @Override

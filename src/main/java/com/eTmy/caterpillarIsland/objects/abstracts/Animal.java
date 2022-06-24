@@ -1,11 +1,12 @@
 package main.java.com.eTmy.caterpillarIsland.objects.abstracts;
 
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
+import main.java.com.eTmy.caterpillarIsland.services.GameHandler;
+import main.java.com.eTmy.caterpillarIsland.services.GameInitializer;
 
 public abstract class Animal extends ItemObject {
-    private double maxSatietyPoints = 0;
-    private double currentSatietyPoints = 0;
-
+    private double maxHungryPoints = 0;
+    private double hungryPoints = 0;
     private boolean reproduceReady;
 
     protected Animal(int positionX, int positionY) {
@@ -13,15 +14,15 @@ public abstract class Animal extends ItemObject {
     }
 
     public void eat(double weight) {
-        currentSatietyPoints += Math.min(weight, maxSatietyPoints);
+        hungryPoints += Math.min(weight, maxHungryPoints);
     }
 
-    public void setMaxSatietyPoints(double maxSatietyPoints) {
-        this.maxSatietyPoints = maxSatietyPoints;
+    public void setMaxHungryPoints(double maxHungryPoints) {
+        this.maxHungryPoints = maxHungryPoints;
     }
 
-    public double getMaxSatietyPoints() {
-        return maxSatietyPoints;
+    public double getMaxHungryPoints() {
+        return maxHungryPoints;
     }
 
     public boolean isReproduceReady() {
@@ -29,24 +30,37 @@ public abstract class Animal extends ItemObject {
     }
 
     public void calculateDailySatiety() {
-        currentSatietyPoints = ((currentSatietyPoints - (maxSatietyPoints / 4)) < 0) ? 0 : currentSatietyPoints - (maxSatietyPoints / 4);
+        hungryPoints = ((hungryPoints - (maxHungryPoints / 4)) < 0) ? 0 : hungryPoints - (maxHungryPoints / 4);
     }
 
     public void calculateReproduce() {
-        reproduceReady = getCurrentSatietyPoints() > getMaxSatietyPoints() / 2;
+        reproduceReady = getHungryPoints() > getMaxHungryPoints() / 2;
     }
 
-    public double getCurrentSatietyPoints() {
-        return currentSatietyPoints;
+    public double getHungryPoints() {
+        return hungryPoints;
     }
 
-    public void setCurrentSatietyPoints(double currentSatietyPoints) {
-        this.currentSatietyPoints = currentSatietyPoints;
+    public void setHungryPoints(double hungryPoints) {
+        this.hungryPoints = hungryPoints;
     }
 
     public void reproduce() {
         GameObjects.createItemObject(this.getClass(), getPositionX(), getPositionY());
+        GameInitializer.statistic.plusReproduce();
     }
 
+    public boolean hunt() {
+        if (GameHandler.canEatOnCurrentField(this)) {
+            ItemObject defensiveObject = GameObjects.getRandomEatableObjectOnField(this);
+            boolean huntResult = GameHandler.tryEatObject(this, defensiveObject);
+            if (huntResult) {
+                this.eat(defensiveObject.getWeight());
+                defensiveObject.setDead(true);
+            }
+            return true;
+        }
+        return false;
+    }
 
 }

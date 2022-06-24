@@ -9,7 +9,7 @@ public class Rabbit extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(2);
         setWeight(2);
-        setMaxSatietyPoints(0.45);
+        setMaxHungryPoints(0.45);
     }
 
     @Override

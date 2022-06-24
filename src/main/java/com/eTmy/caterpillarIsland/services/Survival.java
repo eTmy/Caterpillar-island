@@ -1,4 +1,4 @@
-package main.java.com.eTmy.caterpillarIsland;
+package main.java.com.eTmy.caterpillarIsland.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;

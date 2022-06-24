@@ -1,11 +1,8 @@
 package main.java.com.eTmy.caterpillarIsland.services;
 
-import main.java.com.eTmy.caterpillarIsland.Survival;
-import main.java.com.eTmy.caterpillarIsland.WorldMap;
 import main.java.com.eTmy.caterpillarIsland.db.GameObjects;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
-import main.java.com.eTmy.caterpillarIsland.objects.animals.herbivores.Caterpillar;
 
 import java.util.*;
 
@@ -17,15 +14,12 @@ public class GameHandler {
             return;
         }
 
-        if (animal.isReproduceReady()
-                && GameObjects.canCreateObjectOnField(animal.getPositionKey(), animal.getClass())
-                && GameObjects.getRandomAnimalForSexOnField(animal.getPositionKey(), animal.getClass().getSimpleName()) != null
-        ) {
+        if (canReproduce(animal)) {
             animal.reproduce();
-            System.out.println(animal + " makes a baby");
         } else {
-            hunt(animal);
+            tryHunt(animal);
         }
+
         animal.setDailyActivityCompleted(true);
     }
 
@@ -33,64 +27,51 @@ public class GameHandler {
         animal.calculateDailySatiety();
         animal.calculateReproduce();
 
-        if (animal.getCurrentSatietyPoints() <= 0) {
+        if (animal.getHungryPoints() <= 0) {
             animal.setHP(animal.getHP() - 25);
-            // System.out.println(animal + " reduced by 15 health points");
         }
 
         if (animal.getHP() <= 0) {
             animal.setDead(true);
-            System.out.println(animal + " starved to death");
+            GameInitializer.statistic.plusDeathFromHungry();
         }
     }
 
-    private static void hunt(Animal animal) {
-        if (canEatOnCurrentField(animal)) {
-            //охотится на максимально сытый обьект
-            ItemObject defensiveObject = GameObjects.getRandomEatableObjectOnField(animal);
-            boolean huntResult = tryEatObject(animal, defensiveObject);
-            if (huntResult) {
-                animal.eat(defensiveObject.getWeight());
-                defensiveObject.setDead(true);
-            }
-            //replace with log statistic
-            if (!(animal instanceof Caterpillar)) {
-                System.out.println(animal + " attacking -> " + defensiveObject + " | result " + huntResult
-                        + " | Satiety: max " + String.format("%.2f", animal.getMaxSatietyPoints())
-                        + "  current " + String.format("%.2f", animal.getCurrentSatietyPoints()));
-            }
-            return;
-        }
+    private static void tryHunt(Animal animal) {
+       if (animal.hunt()) {
+           return;
+       }
+
+       animal.move();
 
         if (animal.getSpeed() > 0) {
-            System.out.print(animal + " moves from " + animal.getPositionKey() + " ");
-
             int tryMoveCount = 3;
-
             while (tryMoveCount != 0) {
                 String newPositionKey = getNewPositionKey(animal);
                 if (!newPositionKey.equals(animal.getPositionKey())) {
-                    animal.move(newPositionKey);
+                    animal.setMovePositionKey(newPositionKey);
                     break;
                 }
                 tryMoveCount--;
             }
-
-            //replace with log statistic
-            System.out.println("to " + animal.getPositionKey() + " max speed " + animal.getSpeed());
         }
 
+    }
+    public static boolean canReproduce(Animal animal) {
+        return animal.isReproduceReady()
+                && GameObjects.canCreateObjectOnField(animal.getPositionKey(), animal.getClass())
+                && GameObjects.getRandomAnimalForSexOnField(animal.getPositionKey(), animal.getClass().getSimpleName()) != null;
     }
 
     public static String getNewPositionKey(ItemObject itemObject) {
         int posX = itemObject.getPositionX();
         int posY = itemObject.getPositionY();
-
         int movesCount = itemObject.getSpeed();
-        posX = getRandomCoordinatePosition(posX, movesCount, 0, WorldMap.MAP_WIDTH);
+
+        posX = getRandomCoordinatePosition(posX, movesCount, 0, GameInitializer.gameSettings.getMapWidth() - 1);
         movesCount -= Math.abs(itemObject.getPositionX() - posX);
         if (movesCount > 0) {
-            posY = getRandomCoordinatePosition(posY, movesCount, 0, WorldMap.MAP_HEIGHT);
+            posY = getRandomCoordinatePosition(posY, movesCount, 0, GameInitializer.gameSettings.getMapHeight() - 1);
         }
 
         return "x" + posX + "y" + posY;
@@ -103,12 +84,12 @@ public class GameHandler {
         return (int) (Math.random() * ++maxPosition) + minPosition;
     }
 
-    private static boolean canEatOnCurrentField(Animal animal) {
+    public static boolean canEatOnCurrentField(Animal animal) {
         List<ItemObject> eatableObjectsOnField = GameObjects.getEatableObjectsOnField(animal);
         return eatableObjectsOnField != null && eatableObjectsOnField.size() != 0;
     }
 
-    private static boolean tryEatObject(Animal attackingAnimal, ItemObject defensiveObject) {
+    public static boolean tryEatObject(Animal attackingAnimal, ItemObject defensiveObject) {
         Double eatChance = Survival.getInstance()
                 .getEatChance(attackingAnimal.getClass().getSimpleName(), defensiveObject.getClass().getSimpleName());
         return eatChance != 0.0 && throwDice(eatChance);

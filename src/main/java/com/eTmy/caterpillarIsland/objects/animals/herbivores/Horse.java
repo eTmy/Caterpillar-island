@@ -9,7 +9,7 @@ public class Horse extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(4);
         setWeight(400);
-        setMaxSatietyPoints(60);
+        setMaxHungryPoints(60);
     }
 
     @Override

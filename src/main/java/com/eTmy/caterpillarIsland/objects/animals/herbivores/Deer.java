@@ -9,7 +9,7 @@ public class Deer extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(4);
         setWeight(300);
-        setMaxSatietyPoints(50);
+        setMaxHungryPoints(50);
     }
 
     @Override

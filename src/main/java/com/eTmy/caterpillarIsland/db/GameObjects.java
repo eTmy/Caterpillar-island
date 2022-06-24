@@ -1,7 +1,6 @@
 package main.java.com.eTmy.caterpillarIsland.db;
 
-import main.java.com.eTmy.caterpillarIsland.Survival;
-import main.java.com.eTmy.caterpillarIsland.WorldMap;
+import main.java.com.eTmy.caterpillarIsland.services.Survival;
 import main.java.com.eTmy.caterpillarIsland.annotations.animals.ObjectBasicProperties;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.Animal;
 import main.java.com.eTmy.caterpillarIsland.objects.abstracts.ItemObject;
@@ -12,18 +11,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameObjects {
-    private static Map<String, ArrayList<ItemObject>> createdObjects = new ConcurrentHashMap<>();//HashMap<>();
+    private static Map<String, CopyOnWriteArrayList<ItemObject>> createdObjects = new ConcurrentHashMap<>();
 
-    public static Map<String, ArrayList<ItemObject>> getGameObjects() {
+    public static Map<String, CopyOnWriteArrayList<ItemObject>> getGameObjects() {
         return createdObjects;
     }
 
-    public static void generateGameFields() {
-        for (int x = 0; x < WorldMap.MAP_WIDTH; x++) {
-            for (int y = 0; y < WorldMap.MAP_HEIGHT; y++) {
-                for (Class<?> aClass : GameInitializer.usedGameObjectClasses) {
+    public static void generateGameFields(List<Class<?>> classes) {
+        for (int x = 0; x < GameInitializer.gameSettings.getMapWidth(); x++) {
+            for (int y = 0; y < GameInitializer.gameSettings.getMapHeight(); y++) {
+                for (Class<?> aClass : classes) {
                     generateItemObjectsOnField(aClass, x, y);
                 }
             }
@@ -33,10 +33,10 @@ public class GameObjects {
     public static void generateItemObjectsOnField(@NotNull Class<?> aClass, int positionX, int positionY) {
         ObjectBasicProperties annotation = aClass.getAnnotation(ObjectBasicProperties.class);
         int randomMaxCount = (int) (Math.random() * annotation.maxCount());
-        for (int i = 0; i < randomMaxCount; i++) {
+        int createdCount = getCreatedObjectsCountOnField("x" + positionX + "y" + positionY, aClass);
+        for (int i = createdCount; i < randomMaxCount; i++) {
             createItemObject(aClass, positionX, positionY);
         }
-        System.out.println("Координаты X" + positionX + "Y" + positionY + " создано " + randomMaxCount + " экземпляров класса " + annotation.printName());
     }
 
     private static void removeObject(ItemObject itemObject) {
@@ -48,34 +48,21 @@ public class GameObjects {
         allCreatedObjects.forEach(itemObject -> {
             if (itemObject.isDead()) {
                 removeObject(itemObject);
-                //System.out.println(itemObject + " deleted from " + itemObject.getPositionKey());
+                return;
+            }
+            if (!itemObject.getPositionKey().equals(itemObject.getMovePositionKey())) {
+                removeObject(itemObject);
+                itemObject.move();
+                addToCreatedObjects(itemObject);
             }
         });
-//Разрулить Concurrent ex при удалении из мапы
-//        GameObjects.getGameObjects().forEach((k, v) -> v.forEach(itemObject -> {
-//            if (itemObject.isDead()) {
-//                removeObject(itemObject);
-//                System.out.println(itemObject + " deleted from " + k);
-//            }
-//
-//            if(!itemObject.getPositionKey().equals(k)) {
-//                v.remove(itemObject);
-//                addToCreatedObjects(itemObject);
-//                System.out.println(itemObject + " moves from " + k + " to " + itemObject.getPositionKey());
-//            }
-//        }));
-
-
     }
 
     public static List<ItemObject> getListAllCreatedObjects() {
-        List<ItemObject> listAnimals = new ArrayList<>();
-        GameObjects.getGameObjects().forEach((k, v) -> v.forEach(itemObject -> {
-            if (itemObject instanceof Animal) {
-                listAnimals.add(itemObject);
-            }
-        }));
-        return listAnimals;
+        List<ItemObject> itemObjects = new ArrayList<>();
+        GameObjects.getGameObjects().forEach((k, v) -> itemObjects.addAll(v));
+
+        return itemObjects;
     }
 
     public static void createItemObject(@NotNull Class<?> aClass, int positionX, int positionY) {
@@ -90,9 +77,9 @@ public class GameObjects {
     }
 
     public static void addToCreatedObjects(@NotNull ItemObject itemObject) {
-        ArrayList<ItemObject> mapValue = createdObjects.get(itemObject.getPositionKey());
+        CopyOnWriteArrayList<ItemObject> mapValue = createdObjects.get(itemObject.getPositionKey());
         if (mapValue == null) {
-            ArrayList<ItemObject> objects = new ArrayList<>();
+            CopyOnWriteArrayList<ItemObject> objects = new CopyOnWriteArrayList<>();
             objects.add(itemObject);
             createdObjects.put(itemObject.getPositionKey(), objects);
         } else {
@@ -102,6 +89,9 @@ public class GameObjects {
     }
 
     public static ArrayList<ItemObject> getObjectsOnField(String positionKey) {
+        if (createdObjects.get(positionKey) == null) {
+            return null;
+        }
         return new ArrayList<>(createdObjects.get(positionKey));
     }
 
@@ -116,13 +106,15 @@ public class GameObjects {
 
     public static List<ItemObject> getEatableObjectsOnField(Animal animal) {
         List<String> eatableObjects = Survival.getInstance().getEatableObjects(animal.getClass().getSimpleName());
-        List<ItemObject> objectsOnField = getObjectsOnField(animal.getPositionKey());
+        List<ItemObject> objectsOnField = getObjectsOnField(animal.getMovePositionKey());
 
-        if (eatableObjects == null) {
+        if (eatableObjects == null || objectsOnField == null) {
             return null;
         }
 
-        objectsOnField.removeIf(itemObject -> !eatableObjects.contains(itemObject.getClass().getSimpleName()));
+        objectsOnField.removeIf(itemObject -> !eatableObjects.contains(itemObject.getClass().getSimpleName())
+                || itemObject.isDead()
+                || itemObject.hasMoved());
 
         return objectsOnField;
     }
@@ -141,5 +133,21 @@ public class GameObjects {
                 .filter(itemObject -> itemObject.getClass().getSimpleName().equals(aClass.getSimpleName()))
                 .count();
         return countCreatedObjects < annotation.maxCount();
+    }
+
+    public static long getCreatedObjectsCount(Class<?> aClass) {
+        return getListAllCreatedObjects().stream()
+                .filter(itemObject -> aClass.isAssignableFrom(itemObject.getClass()))
+                .count();
+    }
+
+    public static int getCreatedObjectsCountOnField(String positionKey, Class<?> aClass) {
+        List<ItemObject> itemObjects = getObjectsOnField(positionKey);
+        if (itemObjects == null) {
+            return 0;
+        }
+        return (int) itemObjects.stream()
+                .filter(itemObject -> itemObject.getClass().getSimpleName().equals(aClass.getSimpleName()))
+                .count();
     }
 }

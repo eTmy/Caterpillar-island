@@ -9,7 +9,7 @@ public class Fox extends CarnivoreAnimal {
         super(positionX, positionY);
         setSpeed(2);
         setWeight(8);
-        setMaxSatietyPoints(2);
+        setMaxHungryPoints(2);
     }
 
     @Override

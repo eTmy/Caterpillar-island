@@ -9,7 +9,7 @@ public class Bear extends CarnivoreAnimal {
         super(positionX, positionY);
         setSpeed(2);
         setWeight(500);
-        setMaxSatietyPoints(80);
+        setMaxHungryPoints(80);
     }
 
     @Override

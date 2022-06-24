@@ -9,7 +9,7 @@ public class Eagle extends CarnivoreAnimal {
         super(positionX, positionY);
         setSpeed(3);
         setWeight(6);
-        setMaxSatietyPoints(1);
+        setMaxHungryPoints(1);
     }
 
     @Override

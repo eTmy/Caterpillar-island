@@ -9,7 +9,7 @@ public class Boar extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(2);
         setWeight(400);
-        setMaxSatietyPoints(50);
+        setMaxHungryPoints(50);
     }
 
     @Override

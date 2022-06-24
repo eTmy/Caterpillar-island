@@ -9,7 +9,7 @@ public class Buffalo extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(3);
         setWeight(700);
-        setMaxSatietyPoints(100);
+        setMaxHungryPoints(100);
     }
 
     @Override

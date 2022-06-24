@@ -9,7 +9,7 @@ public class Sheep extends HerbivoreAnimal {
         super(positionX, positionY);
         setSpeed(3);
         setWeight(70);
-        setMaxSatietyPoints(15);
+        setMaxHungryPoints(15);
     }
 
     @Override

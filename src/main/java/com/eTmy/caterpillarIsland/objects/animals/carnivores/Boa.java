@@ -9,7 +9,7 @@ public class Boa extends CarnivoreAnimal {
         super(positionX, positionY);
         setSpeed(1);
         setWeight(50);
-        setMaxSatietyPoints(3);
+        setMaxHungryPoints(3);
     }
 
     @Override
